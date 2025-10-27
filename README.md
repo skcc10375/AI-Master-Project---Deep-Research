@@ -1,2 +1,14 @@
 # AI-Master-Project---Deep-Research
-(가제) 제안서 분석 Deep Research Agent 개발
+parsing 
+- vlm_parser.py
+- output : vlm parsing 결과
+
+embedding
+- output :  embedding 결과
+
+chunking
+- chunker.py
+- output :  chunking 결과
+
+data
+- 원본 데이터 저장소 !!! (2024년 2022년 제안서 2개)
