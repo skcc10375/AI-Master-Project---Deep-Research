@@ -87,8 +87,8 @@ def generation_answer_from_llm(system_prompt, user_input):
     res = client.chat.completions.create(
         model=config.LLM_MODEL,
         messages=messages,
-        temperature=0.7,
-        top_p=0.8,
-        presence_penalty=1.5,
+        # temperature=0.7,
+        # top_p=0.8,
+        # presence_penalty=1.5,
     )
     return res
