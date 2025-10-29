@@ -4,5 +4,5 @@ MY_TOKEN : "sk-proj-wFgIib_ScEFU-h0GjgaHp3UHPZyF1A-8UDi4OMZ8ZZkLZ7AKsnNVbqDMDyyq
 PERSIST_DIR : "./chroma_db_addmeta"
 COLLECTION : "kai_tech_test_addmeta"
 DISTANCE : "cosine"
-LLM_MODEL : "gpt-5"
+LLM_MODEL : "gpt-4o"
 LLM_API_URL : "https://api.openai.com/v1/chat/completions"
