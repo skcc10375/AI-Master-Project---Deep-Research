@@ -432,8 +432,20 @@ async def researcher(state: ResearcherState, config: RunnableConfig) -> Command[
 async def execute_tool_safely(tool, args, config):
     """Safely execute a tool with error handling."""
     try:
-        return await tool.ainvoke(args, config)
+        # 툴 호출 정보 출력
+        tool_name = getattr(tool, 'name', 'unknown_tool')
+        print(f"🔧 Executing tool: {tool_name}")
+        print(f"📝 Tool args: {args}")
+        
+        result = await tool.ainvoke(args, config)
+        
+        # 결과 요약 출력
+        result_preview = str(result)[:100] + "..." if len(str(result)) > 100 else str(result)
+        print(f"✅ Tool {tool_name} completed. Result preview: {result_preview}")
+        
+        return result
     except Exception as e:
+        print(f"❌ Error executing tool {tool_name}: {str(e)}")
         return f"Error executing tool: {str(e)}"
 
 

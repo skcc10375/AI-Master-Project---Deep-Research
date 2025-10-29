@@ -35,7 +35,7 @@ from mcp import McpError
 from tavily import AsyncTavilyClient
 
 from open_deep_research.configuration import Configuration, SearchAPI
-from open_deep_research.prompts import summarize_webpage_prompt
+from open_deep_research.prompts import summarize_search_results_prompt
 from open_deep_research.state import ResearchComplete, Summary
 from open_deep_research.vectordb_search import vectordb_search
 
@@ -190,8 +190,8 @@ async def summarize_webpage(model: BaseChatModel, webpage_content: str) -> str:
     """
     try:
         # Create prompt with current date context
-        prompt_content = summarize_webpage_prompt.format(
-            webpage_content=webpage_content, 
+        prompt_content = summarize_search_results_prompt.format(
+            search_content=webpage_content, 
             date=get_today_str()
         )
         
@@ -606,9 +606,9 @@ async def get_all_tools(config: RunnableConfig):
         tools.append(vectordb_search_tool)
     
     
-    print("########################################################")
-    print(f"tools: {tools}")
-    print("########################################################")
+    # print("########################################################")
+    # print(f"tools: {tools}")
+    # print("########################################################")
     
     # Track existing tool names to prevent conflicts
     existing_tool_names = {
