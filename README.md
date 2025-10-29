@@ -1,2 +1,7 @@
 # AI-Master-Project---Deep-Research
-(가제) 제안서 분석 Deep Research Agent 개발
+명령어
+
+uvx --refresh --from "langgraph-cli[inmem]" --with-editable . --python 3.11 langgraph dev --allow-blocking
+
+
+
