@@ -605,6 +605,11 @@ async def get_all_tools(config: RunnableConfig):
         }
         tools.append(vectordb_search_tool)
     
+    
+    print("########################################################")
+    print(f"tools: {tools}")
+    print("########################################################")
+    
     # Track existing tool names to prevent conflicts
     existing_tool_names = {
         tool.name if hasattr(tool, "name") else tool.get("name", "web_search") 
