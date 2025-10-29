@@ -46,24 +46,26 @@ def load_all_preembedded_files(outputs_dir: str):
     Returns (ids, docs, metas, embs) for ChromaDB indexing.
     """
     ids, docs, metas, embs = [], [], [], []
-    
+
     # Get all JSON files in outputs directory
     outputs_path = Path(outputs_dir)
     if not outputs_path.exists():
         print(f"Warning: Outputs directory {outputs_dir} does not exist")
         return ids, docs, metas, embs
-    
+
     json_files = list(outputs_path.glob("*.json"))
     if not json_files:
         print(f"Warning: No JSON files found in {outputs_dir}")
         return ids, docs, metas, embs
-    
+
     print(f"Found {len(json_files)} JSON files in {outputs_dir}")
-    
+
     for json_file in json_files:
         print(f"Loading embeddings from {json_file.name}...")
         try:
-            file_ids, file_docs, file_metas, file_embs = load_preembedded(str(json_file))
+            file_ids, file_docs, file_metas, file_embs = load_preembedded(
+                str(json_file)
+            )
             ids.extend(file_ids)
             docs.extend(file_docs)
             metas.extend(file_metas)
@@ -72,7 +74,7 @@ def load_all_preembedded_files(outputs_dir: str):
         except Exception as e:
             print(f"Error loading {json_file.name}: {str(e)}")
             continue
-    
+
     print(f"Total loaded: {len(ids)} chunks from {len(json_files)} files")
     return ids, docs, metas, embs
 
@@ -84,7 +86,7 @@ def index_to_chroma(
     embs: List[List[float]],
     persist_dir: str,
     collection_name: str,
-    distance: str = "cosine"
+    distance: str = "cosine",
 ):
     """Index data into ChromaDB."""
     client = chromadb.PersistentClient(path=persist_dir)
@@ -96,7 +98,9 @@ def index_to_chroma(
     return col
 
 
-def perform_embedding(token: str, model: str, text_list: List[str]) -> List[List[float]]:
+def perform_embedding(
+    token: str, model: str, text_list: List[str]
+) -> List[List[float]]:
     """Create embeddings for text using OpenAI."""
     client = OpenAI(api_key=token)
     resp = client.embeddings.create(model=model, input=text_list)
@@ -104,11 +108,13 @@ def perform_embedding(token: str, model: str, text_list: List[str]) -> List[List
     return embeddings
 
 
-def retrieve(col, token: str, model: str, query_text: str, top_k: int = 4) -> List[dict]:
+def retrieve(
+    col, token: str, model: str, query_text: str, top_k: int = 4
+) -> List[dict]:
     """Retrieve similar documents from vector database."""
     qvec = perform_embedding(token, model, [query_text])
     res = col.query(query_embeddings=qvec, n_results=top_k)
-    
+
     hits = []
     for i in range(len(res["ids"][0])):
         hits.append(
@@ -122,17 +128,19 @@ def retrieve(col, token: str, model: str, query_text: str, top_k: int = 4) -> Li
     return hits
 
 
-@tool(description="Search internal documentation and knowledge base using vector similarity. Useful for finding relevant information from embedded documents.")
+@tool(
+    description="Search internal documentation and knowledge base using vector similarity. **USE THIS FIRST** for questions about internal/proprietary information, technical specifications, project documentation, or company-specific data. This searches through pre-indexed internal documents."
+)
 async def vectordb_search(
     query: str,
     top_k: Annotated[int, InjectedToolArg] = 5,
     config: RunnableConfig = None,
 ) -> str:
     """Search vector database for similar documents using semantic similarity.
-    
+
     This tool searches through embedded documents stored in a vector database to find
     the most relevant information based on the query's semantic meaning.
-    
+
     The tool loads all JSON files from the outputs directory for retrieving pre-embedded documents.
 
     Args:
@@ -149,16 +157,16 @@ async def vectordb_search(
     embedding_model = os.getenv("EMBEDDING_MODEL", "text-embedding-3-small")
     outputs_dir = os.getenv("VECTORDB_OUTPUTS_DIR", "./outputs")
     distance = os.getenv("VECTORDB_DISTANCE", "cosine")
-    
+
     # Get embedding API key
     api_key = get_openai_api_key(config)
     if not api_key:
         return "Error: OpenAI API key not found. Please configure OPENAI_API_KEY environment variable."
-    
+
     try:
         # Step 2: Load or index data
         client = chromadb.PersistentClient(path=persist_dir)
-        
+
         # Check if collection exists, if not, create it from all JSON files in outputs directory
         try:
             collection = client.get_collection(name=collection_name)
@@ -166,30 +174,34 @@ async def vectordb_search(
             # Collection doesn't exist, create it from all JSON files in outputs directory
             if not os.path.exists(outputs_dir):
                 return f"Error: Vector database not initialized and outputs directory not found at {outputs_dir}. Please index your documents first."
-            
-            print(f"Initializing vector database from all JSON files in {outputs_dir}...")
+
+            print(
+                f"Initializing vector database from all JSON files in {outputs_dir}..."
+            )
             ids, docs, metas, embs = load_all_preembedded_files(outputs_dir)
             if not ids:
                 return "Error: No embedded data found in any JSON files in the outputs directory."
-            collection = index_to_chroma(ids, docs, metas, embs, persist_dir, collection_name, distance)
+            collection = index_to_chroma(
+                ids, docs, metas, embs, persist_dir, collection_name, distance
+            )
             print(f"Indexed {len(ids)} chunks into ChromaDB")
-        
+
         # Step 3: Retrieve similar documents
         hits = retrieve(collection, api_key, embedding_model, query, top_k)
-        
+
         # Step 4: Format the results
         if not hits:
             return "No relevant documents found in the knowledge base. Try rephrasing your query or using a different search term."
-        
+
         formatted_output = f"Found {len(hits)} relevant document(s):\n\n"
-        
+
         for i, hit in enumerate(hits, 1):
             metadata = hit.get("metadata", {})
             filename = metadata.get("filename", "unknown")
             page = metadata.get("page", "unknown")
             chunk = metadata.get("chunk", "unknown")
             distance = hit.get("distance")
-            
+
             formatted_output += f"\n--- SOURCE {i}: {filename} ---\n"
             if distance is not None:
                 formatted_output += f"Similarity Score: {1-distance:.4f}\n"
@@ -197,9 +209,9 @@ async def vectordb_search(
             formatted_output += f"Document ID: {hit['id']}\n\n"
             formatted_output += f"Content:\n{hit['text']}\n\n"
             formatted_output += "-" * 80 + "\n"
-        
+
         return formatted_output
-        
+
     except Exception as e:
         return f"Error searching vector database: {str(e)}"
 
@@ -214,4 +226,3 @@ def get_openai_api_key(config: RunnableConfig):
         return api_keys.get("OPENAI_API_KEY")
     else:
         return os.getenv("OPENAI_API_KEY")
-
