@@ -57,6 +57,8 @@ def main(in_path: Path, out_path: Path, token: str, model: str):
 
 
 if __name__ == "__main__":
-    in_path = Path("./outputs/chunking_semantic.json")
-    out_path = Path("./outputs/embedding_semantic.json")
+    in_path = Path(
+        "/Users/seohuipark/Documents/ai_master/chunking/output/2024-04-22_우리은행_비정형 데이터 자산화 시스템 2단계 구축_Ⅳ.기술부문.json"
+    )
+    out_path = Path("./outputs/embedding_sh_2024.json")
     main(in_path, out_path, cfg.MY_TOKEN, cfg.EMBEDDING_MODEL)
