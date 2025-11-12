@@ -224,7 +224,7 @@ class Configuration(BaseModel):
     mcp_config: Optional[MCPConfig] = Field(
         default = MCPConfig(
             url="http://localhost:8001/",
-            tools=["vectordb_search"],
+            tools=["vectordb_search", "convert_to_pdf"],
             auth_required=False,
         ),
         optional=True,

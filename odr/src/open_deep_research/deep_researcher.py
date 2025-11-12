@@ -1,8 +1,10 @@
 """Main LangGraph implementation for the Deep Research agent."""
 
 import asyncio
+import os
+from datetime import datetime
+from pathlib import Path
 from typing import Literal
-
 from langchain.chat_models import init_chat_model
 from langchain_core.messages import (
     AIMessage,
@@ -47,6 +49,7 @@ from open_deep_research.utils import (
     get_notes_from_tool_calls,
     get_today_str,
     is_token_limit_exceeded,
+    load_mcp_tools,
     openai_websearch_called,
     remove_up_to_last_ai_message,
     think_tool,
@@ -696,6 +699,54 @@ async def final_report_generation(state: AgentState, config: RunnableConfig):
         **cleared_state
     }
 
+async def convert_to_pdf(state: AgentState, config: RunnableConfig):
+    """
+    Convert the final markdown report to PDF using an external MCP tool.
+    
+    Args:
+        state: Current graph state containing final_report and metadata
+        config: Runtime configuration (including MCP server connections)
+    Returns:
+        Command to END with updated PDF path or error message
+    """
+    final_report = state.get("final_report")
+    if not final_report:
+        return Command(
+            goto=END,
+            update={
+                "messages": [
+                    AIMessage(content="PDF conversion skipped: no final report was generated.")
+                ]
+            },
+        )
+
+    output_dir = Path("reports")
+    output_dir.mkdir(parents=True, exist_ok=True)
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    md_path = output_dir / f"open_deep_research_{timestamp}.md"
+    md_path.write_text(final_report, encoding="utf-8")
+    
+    # 2️⃣ MCP 툴 로드 및 convert_to_pdf 실행
+    try:
+        mcp_tools = await load_mcp_tools(config, existing_tool_names=set())
+        convert_tool = next((t for t in mcp_tools if getattr(t, "name", "") == "convert_to_pdf"), None)
+        if not convert_tool:
+            raise ValueError("MCP tool 'convert_to_pdf' not found.")
+        pdf_result = await convert_tool.ainvoke({"md_path": str(md_path)}, config)
+    except Exception as e:
+        return Command(
+            goto=END,
+            update={"messages": [AIMessage(content=f"❌ PDF conversion failed: {e}")]}
+        )
+
+    # 3️⃣ 결과 보고
+    pdf_path = str(md_path.with_suffix(".pdf"))
+    msg = f"✅ Markdown saved: {md_path}\n✅ PDF created: {pdf_path}\nTool response: {pdf_result}"
+    return Command(goto=END, update={"messages": [AIMessage(content=msg)]})
+
+
+
+
 # Main Deep Researcher Graph Construction
 # Creates the complete deep research workflow from user input to final report
 deep_researcher_builder = StateGraph(
@@ -709,11 +760,13 @@ deep_researcher_builder.add_node("clarify_with_user", clarify_with_user)        
 deep_researcher_builder.add_node("write_research_brief", write_research_brief)     # Research planning phase
 deep_researcher_builder.add_node("research_supervisor", supervisor_subgraph)       # Research execution phase
 deep_researcher_builder.add_node("final_report_generation", final_report_generation)  # Report generation phase
+deep_researcher_builder.add_node("convert_to_pdf", convert_to_pdf)
 
 # Define main workflow edges for sequential execution
 deep_researcher_builder.add_edge(START, "clarify_with_user")                       # Entry point
 deep_researcher_builder.add_edge("research_supervisor", "final_report_generation") # Research to report
-deep_researcher_builder.add_edge("final_report_generation", END)                   # Final exit point
+deep_researcher_builder.add_edge("final_report_generation", "convert_to_pdf")  # 추가
+deep_researcher_builder.add_edge("convert_to_pdf", END)  # PDF 변환 후 종료
 
 # Compile the complete deep researcher workflow
 deep_researcher = deep_researcher_builder.compile()

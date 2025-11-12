@@ -5,15 +5,18 @@ from pathlib import Path
 import chromadb
 from typing import List
 import asyncio
+import pypandoc
+
 OPENAI_API_KEY = "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"
 
 
 mcp = FastMCP(
-    "VectorDBSearch",
+    "VectorDBSearch_MarkdownToPDF",
     instructions=(
         "You provide semantic lookup over the internal vector database. "
         "Given a natural language query, return the most relevant embedded "
         "document chunks along with their metadata."
+        "Convert Markdown to PDF format and save the result file."
     ),
     host="0.0.0.0",
     port=8001
@@ -45,7 +48,27 @@ def retrieve(
         )
     return hits
 
-
+def md_to_pdf(md_path):
+    base_dir = "/Users/a11434/workspace/AI-Master-Project---Deep-Research/odr"
+    
+    # ✅ LangGraph에서 받은 상대경로(reports/...)를 odr 기준으로 합침
+    abs_md_path = os.path.join(base_dir, md_path)
+    abs_pdf_path = abs_md_path.replace(".md", ".pdf")
+    
+    pypandoc.convert_text(
+        open(abs_md_path, encoding="utf-8").read(),
+        "pdf",
+        format="md",
+        outputfile=abs_pdf_path,
+        extra_args=[
+            "--standalone",
+            "--pdf-engine=xelatex",
+            "-V", "mainfont=Apple SD Gothic Neo",  # macOS 기본 한글 폰트
+            "-V", "geometry:margin=1in",
+            "--toc"
+        ]
+    )
+    
 @mcp.tool(name="vectordb_search")
 async def vectordb_search(query: str, top_k: int = 5) -> str:
     """Search vector database for similar documents using semantic similarity."""
@@ -94,11 +117,18 @@ async def vectordb_search(query: str, top_k: int = 5) -> str:
     except Exception as exc:
         return f"Error searching vector database: {exc}"
 
+@mcp.tool(name="convert_to_pdf")
+async def convert_to_pdf(md_path):
+    """Convert Markdown to PDF format and save the result file."""
+    try:
+        md_to_pdf(md_path)
+        return "✅ PDF conversion completed successfully."
+    except Exception as e:
+        return f"❌ PDF conversion failed: {e}"
     
 if __name__ == "__main__":
-    # result = asyncio.run(vectordb_search("우리은행 2022년도 벡터디비 구성"))
-    # print(result)
-    print("VectorDB MCP server is running on")
+
+    print("MCP server is running on")
     mcp.run(transport="streamable-http")
     # uv run vectordb_retrieval_
     
