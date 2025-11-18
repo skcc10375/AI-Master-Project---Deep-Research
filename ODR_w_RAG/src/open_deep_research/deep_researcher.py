@@ -26,6 +26,8 @@ from open_deep_research.configuration import (
     Configuration,
 )
 from open_deep_research.outputagent.pdfagent import pdfagent
+from open_deep_research.final_refinement_agent import final_refinement_subgraph
+
 from open_deep_research.prompts import (
     clarify_with_user_instructions,
     compress_research_simple_human_message,
@@ -800,32 +802,18 @@ deep_researcher_builder = StateGraph(
 )
 
 # Add main workflow nodes for the complete research process
-deep_researcher_builder.add_node(
-    "clarify_with_user", clarify_with_user
-)  # User clarification phase
-deep_researcher_builder.add_node(
-    "write_research_brief", write_research_brief
-)  # Research planning phase
-deep_researcher_builder.add_node(
-    "research_supervisor", supervisor_subgraph
-)  # Research execution phase
-deep_researcher_builder.add_node(
-    "final_report_generation", final_report_generation
-)  # Report generation phase
-
-deep_researcher_builder.add_node(
-    "generate_pdf_report", generate_pdf_report
-)  # Report generation phase
-
+deep_researcher_builder.add_node("clarify_with_user", clarify_with_user)           # User clarification phase
+deep_researcher_builder.add_node("write_research_brief", write_research_brief)     # Research planning phase
+deep_researcher_builder.add_node("research_supervisor", supervisor_subgraph)       # Research execution phase
+deep_researcher_builder.add_node("final_report_generation", final_report_generation)  # Report generation phase
+deep_researcher_builder.add_node("generate_pdf_report", generate_pdf_report)
+deep_researcher_builder.add_node("final_refinement_agent", final_refinement_subgraph)
 
 # Define main workflow edges for sequential execution
-deep_researcher_builder.add_edge(START, "clarify_with_user")  # Entry point
-deep_researcher_builder.add_edge(
-    "research_supervisor", "final_report_generation"
-)  # Research to report
-deep_researcher_builder.add_edge("final_report_generation", END)  # Final exit point
-
-deep_researcher_builder.add_edge("final_report_generation", "generate_pdf_report")
+deep_researcher_builder.add_edge(START, "clarify_with_user")                       # Entry point
+deep_researcher_builder.add_edge("research_supervisor", "final_report_generation") # Research to report
+deep_researcher_builder.add_edge("final_report_generation", "final_refinement_agent")
+deep_researcher_builder.add_edge("final_refinement_agent", "generate_pdf_report")
 deep_researcher_builder.add_edge("generate_pdf_report", END)
 
 # Compile the complete deep researcher workflow
