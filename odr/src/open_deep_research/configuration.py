@@ -62,7 +62,7 @@ class Configuration(BaseModel):
         }
     )
     max_concurrent_research_units: int = Field(
-        default=5,
+        default=3, # 5
         metadata={
             "x_oap_ui_config": {
                 "type": "slider",
@@ -102,7 +102,7 @@ class Configuration(BaseModel):
         }
     )
     max_researcher_iterations: int = Field(
-        default=6,
+        default=2, # 6
         metadata={
             "x_oap_ui_config": {
                 "type": "slider",
@@ -115,7 +115,7 @@ class Configuration(BaseModel):
         }
     )
     max_react_tool_calls: int = Field(
-        default=10,
+        default=1, # 10
         metadata={
             "x_oap_ui_config": {
                 "type": "slider",
@@ -245,7 +245,26 @@ class Configuration(BaseModel):
             }
         }
     )
-
+    md_output_path: Optional[str] = Field(
+            default=None,
+            optional=True,
+            metadata={
+                "x_oap_ui_config": {
+                    "type": "text",
+                    "description": "Optional filesystem path where the generated markdown report should be saved.",
+                }
+            },
+        )
+    pdf_output_path: Optional[str] = Field(
+        default=None,
+        optional=True,
+        metadata={
+            "x_oap_ui_config": {
+                "type": "text",
+                "description": "Optional filesystem path where the generated PDF report should be saved.",
+            }
+        },
+    )
 
     @classmethod
     def from_runnable_config(
