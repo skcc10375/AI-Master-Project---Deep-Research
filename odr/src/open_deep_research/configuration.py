@@ -223,9 +223,9 @@ class Configuration(BaseModel):
     # MCP server configuration
     mcp_config: Optional[MCPConfig] = Field(
         default = MCPConfig(
-            url="http://localhost:8001/",
-            tools=["vectordb_search"],
-            auth_required=False,
+            # url="http://localhost:8001/",
+            # tools=["vectordb_search"],
+            # auth_required=False,
         ),
         optional=True,
         metadata={

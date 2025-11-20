@@ -628,14 +628,6 @@ async def get_all_tools(config: RunnableConfig):
     tools.extend(search_tools)
 
     # Add vector database search tool if enabled
-    if configurable.enable_vectordb_search:
-        vectordb_search_tool = vectordb_search
-        vectordb_search_tool.metadata = {
-            **(vectordb_search_tool.metadata or {}),
-            "type": "search",
-            "name": "vectordb_search",
-        }
-        tools.append(vectordb_search_tool)
 
     # Track existing tool names to prevent conflicts
     existing_tool_names = {
