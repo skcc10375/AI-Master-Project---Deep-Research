@@ -407,7 +407,12 @@ async def researcher(state: ResearcherState, config: RunnableConfig) -> Command[
         mcp_prompt=configurable.mcp_prompt or "", 
         date=get_today_str()
     )
-    
+
+    # Add hint about internal documentation if vectordb is enabled # hui edit
+    if configurable.enable_vectordb_search:
+        researcher_prompt += "\n\nIMPORTANT: You have access to internal documentation through vectordb_search. Always check internal sources first before searching the web."
+
+
     # Configure model with tools, retry logic, and settings
     research_model = (
         configurable_model

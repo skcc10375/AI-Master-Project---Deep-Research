@@ -52,7 +52,7 @@ class Configuration(BaseModel):
         }
     )
     allow_clarification: bool = Field(
-        default=True,
+        default=False,
         metadata={
             "x_oap_ui_config": {
                 "type": "boolean",
@@ -102,7 +102,7 @@ class Configuration(BaseModel):
         }
     )
     max_researcher_iterations: int = Field(
-        default=2, # 6
+        default=1, # 6
         metadata={
             "x_oap_ui_config": {
                 "type": "slider",
@@ -224,7 +224,7 @@ class Configuration(BaseModel):
     mcp_config: Optional[MCPConfig] = Field(
         default = MCPConfig(
             url="http://localhost:8001/",
-            tools=["vectordb_search", "convert_to_pdf"],
+            tools=["vectordb_search"],
             auth_required=False,
         ),
         optional=True,

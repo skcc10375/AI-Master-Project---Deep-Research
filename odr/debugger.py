@@ -37,8 +37,8 @@ async def debug_run():
         "search_api": "tavily",
         "enable_vectordb_search": True,
         "max_researcher_iterations":1,
-        "max_react_tool_calls":2,
-        "max_concurrent_research_units":2
+        "max_react_tool_calls":1,
+        "max_concurrent_research_units":1
     }
 
     print("\n🚀 그래프 실행 시작...\n")

@@ -19,55 +19,9 @@ mcp = FastMCP(
         "Convert Markdown to PDF format and save the result file."
     ),
     host="0.0.0.0",
-    port=8001
+    port=8002
 )
 
-def perform_embedding(token: str, model: str, text_list: List[str]) -> List[List[float]]:
-    """Create embeddings for text using OpenAI."""
-    client = OpenAI(api_key=token)
-    resp = client.embeddings.create(model=model, input=text_list)
-    embeddings = [item.embedding for item in resp.data]
-    return embeddings
-
-def retrieve(
-    col, token: str, model: str, query_text: str, top_k: int = 4
-) -> List[dict]:
-    """Retrieve similar documents from vector database."""
-    qvec = perform_embedding(token, model, [query_text])
-    res = col.query(query_embeddings=qvec, n_results=top_k)
-
-    hits = []
-    for i in range(len(res["ids"][0])):
-        hits.append(
-            {
-                "id": res["ids"][0][i],
-                "text": res["documents"][0][i],
-                "metadata": res["metadatas"][0][i],
-                "distance": res["distances"][0][i] if "distances" in res else None,
-            }
-        )
-    return hits
-
-def md_to_pdf(md_path):
-    base_dir = "/Users/a11434/workspace/AI-Master-Project---Deep-Research/odr"
-    
-    # ✅ LangGraph에서 받은 상대경로(reports/...)를 odr 기준으로 합침
-    abs_md_path = os.path.join(base_dir, md_path)
-    abs_pdf_path = abs_md_path.replace(".md", ".pdf")
-    
-    pypandoc.convert_text(
-        open(abs_md_path, encoding="utf-8").read(),
-        "pdf",
-        format="md",
-        outputfile=abs_pdf_path,
-        extra_args=[
-            "--standalone",
-            "--pdf-engine=xelatex",
-            "-V", "mainfont=Apple SD Gothic Neo",  # macOS 기본 한글 폰트
-            "-V", "geometry:margin=1in",
-            "--toc"
-        ]
-    )
     
 @mcp.tool(name="vectordb_search")
 async def vectordb_search(query: str, top_k: int = 5) -> str:
@@ -75,7 +29,7 @@ async def vectordb_search(query: str, top_k: int = 5) -> str:
 
     api_key = OPENAI_API_KEY
 
-    persist_dir = Path("/Users/a11434/workspace/AI-Master-Project---Deep-Research/chroma_db").resolve()
+    persist_dir = Path("/Users/a11492/Desktop/boot_camp/AI-Master-Project---Deep-Research/chroma_db").resolve()
     collection_name = "master_pjt"
     embedding_model = "text-embedding-3-small"
 
@@ -117,18 +71,3 @@ async def vectordb_search(query: str, top_k: int = 5) -> str:
     except Exception as exc:
         return f"Error searching vector database: {exc}"
 
-@mcp.tool(name="convert_to_pdf")
-async def convert_to_pdf(md_path):
-    """Convert Markdown to PDF format and save the result file."""
-    try:
-        md_to_pdf(md_path)
-        return "✅ PDF conversion completed successfully."
-    except Exception as e:
-        return f"❌ PDF conversion failed: {e}"
-    
-if __name__ == "__main__":
-
-    print("MCP server is running on")
-    mcp.run(transport="streamable-http")
-    # uv run vectordb_retrieval_
-    
