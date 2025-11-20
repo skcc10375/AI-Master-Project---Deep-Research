@@ -12,11 +12,11 @@ brew install --cask mactex
 # ----- MCP Servers 실행 (각각 별도 터미널 권장) -----
 
 * Search Tool MCP Server
-python mcp_server.py
+ - python mcp_server.py
 
 * PDF Agent MCP Server
-cd src/open_deep_research/outputagent/
-python mcpserver.py
+ - cd src/open_deep_research/outputagent/
+ - python mcpserver.py
  → Uvicorn running on http://0.0.0.0:8001 확인
 
 # ----- Open Deep Research (LangGraph Studio) 실행 -----
