@@ -4,32 +4,32 @@
 
 ```
 AI-Master-Project---Deep-Research/
-├── chunking/                    # 문서 청킹 모듈
+├── chunking/                    # 청킹 모듈
 │   ├── add_metadata.py
 │   ├── chunker.py
-│   └── output/                  # 청킹 결과물
+│   └── output/                  
 ├── data/                        # 원본 PDF 데이터
 ├── embedding/                   # 임베딩 결과물
-├── odr/                         # Open Deep Research 메인 모듈
+├── odr/                         
 │   ├── chroma_db/               # ChromaDB 벡터 데이터베이스
-│   ├── examples/                # 예제 파일들
-│   ├── outputs/                 # 출력 결과물
+│   ├── examples/                
+│   ├── outputs/                 # 임베딩 결과
 │   ├── src/
-│   │   ├── legacy/              # 레거시 코드
+│   │   ├── legacy/              
 │   │   ├── open_deep_research/  # 메인 연구 모듈
 │   │   │   ├── deep_researcher.py
-│   │   │   ├── final_refinement_agent.py
-│   │   │   ├── outputagent/     # PDF 출력 에이전트
+│   │   │   ├── final_refinement_agent.py # Final Refinement Agent
+│   │   │   ├── outputagent/     # PDF Agent
 │   │   │   │   └── mcpserver.py
 │   │   │   └── vectordb_search.py
-│   │   └── security/            # 보안 모듈
-│   ├── tests/                   # 테스트 코드
+│   │   └── security/            
+│   ├── tests/                   # 테스트 코드 (tavily, VectorDB 비교 테스트)
 │   ├── langgraph.json
 │   └── pyproject.toml
-├── parsing/                     # PDF 파싱 모듈
+├── parsing/                     # 파싱 모듈
 │   ├── vlm_parser.py
-│   └── output/                  # 파싱 결과물
-├── vectordb/                    # 벡터 데이터베이스 관리
+│   └── output/                  
+├── vectordb/                    # ChromaDB 벡터 데이터베이스 & 임베딩
 │   ├── chroma_db_addmeta/       
 │   ├── chroma_db_test1/         
 │   ├── chroma_db_test2/         
