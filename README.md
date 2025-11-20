@@ -9,18 +9,18 @@ source .venv/bin/activate
 ```
 
 
-4) 가상 환경 설치
+2) 가상 환경 설치
 ```
 uv sync
 ```
 
-7) Mac 기준 필수 패키지
+3) Mac 기준 필수 패키지
 ```
 brew install pandoc
 brew install --cask mactex
 ```
 
-9) env 파일 복사 후 key 값 입력
+4) env 파일 복사 후 key 값 입력
 ```
 cp .env.example .env
 ```
