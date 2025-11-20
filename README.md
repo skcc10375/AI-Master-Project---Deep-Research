@@ -1,5 +1,9 @@
 # AI-Master-Project – Deep Research 실행 가이드
 
+## 전체 구성도
+
+![전체 구성도](전체구조.png)
+
 ## 프로젝트 구조
 
 ```
