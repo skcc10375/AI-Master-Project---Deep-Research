@@ -1,5 +1,51 @@
 # AI-Master-Project – Deep Research 실행 가이드
 
+## 프로젝트 구조
+
+```
+AI-Master-Project---Deep-Research/
+├── chunking/                    # 문서 청킹 모듈
+│   ├── add_metadata.py
+│   ├── chunker.py
+│   └── output/                  # 청킹 결과물
+├── data/                        # 원본 PDF 데이터
+├── embedding/                   # 임베딩 결과물
+├── odr/                         # Open Deep Research 메인 모듈
+│   ├── chroma_db/               # ChromaDB 벡터 데이터베이스
+│   ├── examples/                # 예제 파일들
+│   ├── outputs/                 # 출력 결과물
+│   ├── src/
+│   │   ├── legacy/              # 레거시 코드
+│   │   ├── open_deep_research/  # 메인 연구 모듈
+│   │   │   ├── deep_researcher.py
+│   │   │   ├── final_refinement_agent.py
+│   │   │   ├── outputagent/     # PDF 출력 에이전트
+│   │   │   │   └── mcpserver.py
+│   │   │   └── vectordb_search.py
+│   │   └── security/            # 보안 모듈
+│   ├── tests/                   # 테스트 코드
+│   ├── langgraph.json
+│   └── pyproject.toml
+├── parsing/                     # PDF 파싱 모듈
+│   ├── vlm_parser.py
+│   └── output/                  # 파싱 결과물
+├── vectordb/                    # 벡터 데이터베이스 관리
+│   ├── chroma_db_addmeta/       
+│   ├── chroma_db_test1/         
+│   ├── chroma_db_test2/         
+│   ├── outputs/                 
+│   ├── config.yml
+│   ├── dbchecker.py
+│   ├── embedding.py
+│   ├── main.py
+│   └── vectordb_chroma.py
+├── LICENSE
+├── README.md
+└── requirements.txt
+```
+
+## 설치 및 실행
+
 1) 가상환경 세팅
 
 ```
@@ -25,13 +71,7 @@ brew install --cask mactex
 cp .env.example .env
 ```
 
-## ----- MCP Servers 실행 (각각 별도 터미널 권장) -----
-
-### Search Tool MCP Server
-
-```
-python mcp_server.py
-```
+## ----- MCP Servers 실행  -----
 
 ### PDF Agent MCP Server
 
@@ -45,7 +85,7 @@ python mcpserver.py
 ## ----- Open Deep Research (LangGraph Studio) 실행 -----
 
 ```
-cd ODR_w_RAG
+cd odr
 ```
 
 랭그래프 스튜디오 실행 명령어 
