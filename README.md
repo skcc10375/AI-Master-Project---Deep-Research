@@ -1,51 +1,53 @@
-# AI-Master-Project---Deep-Research
-<<<<<<< HEAD
-명령어
+# ==============================
+# AI-Master-Project – Deep Research
+# 전체 실행 스크립트 (복붙용)
+# ==============================
 
+# 1. 프로젝트 루트로 이동
+cd ODR_w_RAG
 
+# 2. 가상환경 활성화
 source .venv/bin/activate
 
-1. mcp 띄우기 : python mcp_server.py
-2. OpenDeepResearch 띄우기
-    1. cd odr
-    2. uvx --refresh --from "langgraph-cli[inmem]" --with-editable . --python 3.11 langgraph dev --allow-blocking
+# 3. Python 의존성 설치
+uv sync
 
-3. Manage Assistants 에서, SearchAPI ( None or tavily ) / Enable Vectordb Search  로 비교
+# 4. 시스템 패키지 설치 (Mac 기준)
+brew install pandoc
+brew install --cask mactex
 
-
-
-=======
-
-### pdf agent 실행방법 
-
-[ 필요 패키지 설치 ] 
- 
-1. pypandoc
-   - pyproject.toml에 추가완료 
-   - uv sync 로 알아서 프로젝트 의존성으로 설치됨 
-
-2. Pandoc 설치
-   - brew install pandoc
-
-3. XeLaTeX 설치 (MacTeX 포함) --> 엄청 오래걸림 ㅠ
-   - brew install --cask mactex
-
-[ MCPserver 별도로 띄우기 (필수 !!!!!)] 
-
-4. 가상환경 실행 
-   - cd ODR_w_RAG 
-   - source .venv/bin/activate
-
-5. mcpserver.py 파일 실행 
-   - (ODR_w_RAG) cd src/open_deep_research/outputagent/
-   - cd python mcpserver.py
-   - Uvicorn running on http://0.0.0.0:8001 뜨면 성공 ! 
+# ==============================
+# MCP SERVER 실행 (필수)
+# 별도 터미널에서 실행 권장
+# ==============================
 
 
-[ 그 후 기존대로 langgraph studio 실행 ] 
-   - uvx --refresh --from "langgraph-cli[inmem]" --with-editable . --python 3.11 langgraph dev --allow-blocking
-   - generate_pdf_report 노드 추가된 그래프 확인 가능 
-   - New assistant 에서 저장 경로 설정 (반드시 로컬 절대 경로로 설정 !!!!!!) 
-     - md output path : markdown 저장 경로
-     - pdf output path : pdf 저장 경로 
->>>>>>> f9fd3be99f4ca43739cf1ecd21581f450e1c774c
+# 5. Search Tool MCP server
+python mcp_server.py
+
+# 6. PDF Agent MCP server
+cd src/open_deep_research/outputagent/
+python mcpserver.py
+# 성공 시: Uvicorn running on http://0.0.0.0:8001
+
+# ==============================
+# Open Deep Research 실행 (새 터미널 권장)
+# ==============================
+
+cd ODR_w_RAG
+
+uvx --refresh --from "langgraph-cli[inmem]" \
+  --with-editable . \
+  --python 3.11 \
+  langgraph dev --allow-blocking
+
+# ==============================
+# LangGraph Studio 설정 안내 (수동 작업)
+# ==============================
+
+# 1) Manage Assistants 진입
+# 2) SearchAPI : None 또는 tavily 선택
+# 3) Enable Vectordb Search 활성화
+# 4) 반드시 절대경로로 저장 경로 입력
+#    - md output path
+#    - pdf output path
